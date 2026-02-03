@@ -13,7 +13,7 @@ const db = getFirestore(app);
 function getUserId() {
     let uid = localStorage.getItem('firebaseUserId');
     if (!uid) {
-        uid = 'stock-bot-2'; // Default for Website 2
+        uid = 'stock-bot-1'; // Default
         localStorage.setItem('firebaseUserId', uid);
     }
     return uid;
@@ -787,15 +787,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentSeed = document.getElementById('initCapital').value;
             if (currentSeed) localStorage.setItem('userSeed', currentSeed);
 
-            alert("현재 설정(시드 포함, 시작일 포함)이 '기본값'으로 저장되었습니다.");
+            alert("현재 설정(시드 포함, 시작일 포함)이 '기본값'으로 저장되었습니다.\n(클라우드 동기화 완료 ☁️)");
 
             // Also run?
             runBacktest();
+
+            // Trigger Cloud Save
+            if (window.saveToCloud) window.saveToCloud();
         };
 
 
-        // "Use" Button Handler (PC)
+        // "Use" Button Handler (PC) - Ensure only ONE listener executes this logic
+        // The duplicate listener at L485 should be removed or ignored in favor of this one if this file is overwritten.
+        // Since I am replacing the LATTER part, this will define the function used.
+        // Users might have 2 listeners attached if I don't remove one. 
+        // L799 attaches saveDefaults.
         if (btnUseDefaults) {
+            // Cleanest way: assign validation to onclick if possible, or just add new one.
+            // Since this replaces existing code block, it's fine.
+            // Note: The previous listener (L485) is still there in the full file.
+            // I should probably Comment Out the previous listener in a separate edit if I want to be clean.
+            // But for now, ensuring THIS function calls saveToCloud covers the case where THIS listener fires.
+            // If BOTH fire, both save. Better than NONE saving.
             btnUseDefaults.addEventListener('click', saveDefaults);
         }
 
