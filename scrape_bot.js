@@ -112,6 +112,27 @@ async function sendTelegram(chatId, text) {
         await page.click('#btnOrderSheet');
         await page.waitForSelector('#orderSheetModal', { visible: true, timeout: 10000 });
 
+        // --- ADDED: CLICK BUTTONS LOGIC ---
+        console.log("Checking for Adjust/Netting Buttons...");
+        try {
+            const [adjustBtn] = await page.$x("//button[contains(., '목표매수가 조정')]");
+            if (adjustBtn) {
+                console.log("Clicking 'Adjust Buy Price'...");
+                await adjustBtn.click();
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        } catch (ignore) { }
+
+        try {
+            const [nettingBtn] = await page.$x("//button[contains(., '퉁치기')]");
+            if (nettingBtn) {
+                console.log("Clicking 'Netting'...");
+                await nettingBtn.click();
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        } catch (ignore) { }
+        // ----------------------------------
+
         // 9. Scrape Content
         const rawText = await page.$eval('#orderSheetModal .modal-content', el => el.innerText);
 
