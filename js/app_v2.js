@@ -967,6 +967,21 @@ document.getElementById('btnOrderSheet').addEventListener('click', () => {
     area.classList.toggle('hidden');
 });
 
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Auto-Connect to Firebase immediately
+    try {
+        if (!auth.currentUser) {
+            await signInAnonymously(auth);
+            console.log("Auto-connected to Firebase anonymously.");
+        }
+    } catch (e) {
+        console.error("Auto-connect failed:", e);
+    }
+
+    // 2. Button Handlers
+    const btnCalculate = document.getElementById('btnCalculate');
+});
+
 // --- DEEP MIND INTEGRATION ---
 // --- DEEP MIND INTEGRATION ---
 const elDeepMindView = document.getElementById('deepMindView');
