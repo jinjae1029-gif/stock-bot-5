@@ -5,6 +5,8 @@ on:
     # UTC 23:30 = KST 08:30 (다음날 아침)
     - cron: '30 23 * * *'
   workflow_dispatch: # Manual trigger
+  push:
+    branches: [ "main" ]
 
 permissions:
   contents: write
@@ -23,7 +25,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install Python dependencies
-        run: pip install yfinance pandas
+        run: pip install yfinance pandas curl_cffi --upgrade
 
       - name: Run Data Update Script
         run: python update_data.py
@@ -53,7 +55,7 @@ jobs:
 
       - name: Run Telegram Bot
         env:
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          # TG_TOKEN: ${{ secrets.TG_TOKEN }} # Use hardcoded fallback or set manually
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
-          BOT_USER_ID: "stock-bot-2" # <-- Bot 2 ID
+          BOT_USER_ID: "stock-bot-5" # <-- Bot 5 ID
         run: node daily_bot.js

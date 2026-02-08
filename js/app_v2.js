@@ -12,8 +12,8 @@ const db = getFirestore(app);
 // --- FIREBASE HELPERS ---
 // --- FIREBASE HELPERS ---
 function getUserId() {
-    // ENFORCE Bot 2 ID always
-    const targetId = 'stock-bot-2';
+    // ENFORCE Bot 5 ID always
+    const targetId = 'stock-bot-5';
     let uid = localStorage.getItem('firebaseUserId');
 
     if (uid !== targetId) {
@@ -2410,6 +2410,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnSaveParams) {
         btnSaveParams.addEventListener('click', window.saveCurrentParamsToWarehouse);
     }
+
+    // [New] Cloud Save Button (Seed)
+    const btnSaveSeed = document.getElementById('btnSaveSeed');
+    if (btnSaveSeed) {
+        btnSaveSeed.classList.remove('hidden'); // Show it!
+        btnSaveSeed.addEventListener('click', window.saveToCloud);
+    }
+
+    // Auto Load from Cloud
+    loadFromCloud();
 
     // 1. Temp Storage Toggle
     const toggleSaved = document.getElementById('toggleSavedStrategies');
