@@ -1,5 +1,5 @@
 {
-    "name": "backtest-app-2",
+    "name": "backtest-app-5",
     "version": "1.0.0",
     "description": "Stock Backtest & Trading Bot",
     "main": "daily_bot.js",
