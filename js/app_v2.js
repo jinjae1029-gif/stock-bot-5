@@ -76,16 +76,12 @@ window.saveToCloud = async () => {
     try {
         await setDoc(doc(db, "users", uid), data);
         console.log(`Saved to Firestore: users/${uid}`);
-        if (btnUseDefaults) {
-            btnUseDefaults.innerHTML = "저장 완료! ☁️";
-            setTimeout(() => {
-                btnUseDefaults.innerHTML = originalText;
-                btnUseDefaults.disabled = false;
-            }, 2000); // Reset after 2 seconds
-        }
-        // Removed else alert("클라우드 저장 완료 ☁️");
+        if (btnUseDefaults) btnUseDefaults.innerHTML = "저장 완료! ✅";
     } catch (e) {
         console.error("Cloud Save Error:", e);
+        // Only alert if it's NOT a permission error (or maybe just log it)
+        // User asked to be silent if success, but alert if fail.
+        // If permission error persists despite auth, we should know.
         if (e.code === 'permission-denied') {
             console.warn("Permission denied despite auth. Check Firestore Rules.");
             alert("저장 권한 오류: 잠시 후 다시 시도해주세요.");
@@ -93,9 +89,14 @@ window.saveToCloud = async () => {
             alert(`클라우드 저장 실패: ${e.message}`);
         }
     } finally {
-        if (btnUseDefaults && btnUseDefaults.innerHTML !== "저장 완료! ☁️") { // Don't reset if success message is showing
+        if (btnUseDefaults) {
             btnUseDefaults.disabled = false;
-            btnUseDefaults.innerHTML = originalText;
+            // Reset to original text after a short delay if success, or immediately if fail
+            if (btnUseDefaults.innerHTML === "저장 완료! ✅") {
+                setTimeout(() => btnUseDefaults.innerHTML = originalText, 2000);
+            } else {
+                btnUseDefaults.innerHTML = originalText;
+            }
         }
     }
 };
