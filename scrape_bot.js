@@ -25,13 +25,10 @@ if (FIREBASE_CREDENTIALS) {
 async function getChatIdAndUid() {
     if (!db) return null;
     try {
-        // 1. Try finding by ID directly
         let doc = await db.collection('users').doc(TARGET_BOT_ID).get();
         if (doc.exists && doc.data().telegramChatId) {
             return { uid: TARGET_BOT_ID, chatId: doc.data().telegramChatId };
         }
-
-        // 2. Iterate all users to find one with a Chat ID
         const snapshot = await db.collection('users').get();
         let found = null;
         snapshot.forEach(doc => {
@@ -41,7 +38,6 @@ async function getChatIdAndUid() {
             }
         });
         return found;
-
     } catch (e) {
         console.error("Error fetching user:", e);
     }
@@ -89,17 +85,14 @@ async function sendTelegram(chatId, text) {
         // 4. Set LocalStorage (Simulate User)
         await page.evaluate((u) => {
             localStorage.setItem('firebaseUserId', u);
+            localStorage.setItem('userSeed', '10000');
         }, uid);
 
         // 5. Reload to apply ID and Load Data
         console.log("Reloading with User ID...");
         await page.reload({ waitUntil: 'networkidle0' });
 
-        // 6. Wait for simulation
-        console.log("Waiting for simulation...");
-        await page.waitForFunction(() => window.lastFinalState && document.getElementById('kpiFinal'), { timeout: 60000 });
-
-        // 7. Ensure "Trading Sheet" Mode (Toggle ON)
+        // 6. Ensure "Trading Sheet" Mode (Toggle ON)
         const toggle = await page.$('#toggleMode');
         if (toggle) {
             const isChecked = await (await toggle.getProperty('checked')).jsonValue();
@@ -110,10 +103,14 @@ async function sendTelegram(chatId, text) {
             }
         }
 
+        // 7. Wait for simulation
+        console.log("Waiting for simulation...");
+        await page.waitForFunction(() => window.lastFinalState && document.getElementById('kpiFinal'), { timeout: 60000 });
+
         // 8. Open Order Sheet Modal
         console.log("Opening Order Sheet...");
         await page.click('#btnOrderSheet');
-        await page.waitForSelector('#orderSheetModal', { visible: true, timeout: 5000 });
+        await page.waitForSelector('#orderSheetModal', { visible: true, timeout: 10000 });
 
         // 9. Scrape Content
         const rawText = await page.$eval('#orderSheetModal .modal-content', el => el.innerText);
@@ -122,22 +119,11 @@ async function sendTelegram(chatId, text) {
         const extraData = await page.evaluate(() => {
             if (!window.lastFinalState) return null;
             const s = window.lastFinalState;
-
-            // Calc Total Holdings
             const totalQty = s.holdings.reduce((sum, h) => sum + h.quantity, 0);
-
-            // Calc Seed (Current + Pending)
             const seed = s.currentSeed + (s.pendingRebalance || 0);
-
-            // Total Asset
             const elAsset = document.getElementById('previewTotalAsset');
             const assetTxt = elAsset ? elAsset.innerText : "$0";
-
-            return {
-                qty: totalQty,
-                seed: Math.floor(seed),
-                asset: assetTxt
-            };
+            return { qty: totalQty, seed: Math.floor(seed), asset: assetTxt };
         });
 
         let cleanText = rawText
