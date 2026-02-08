@@ -97,7 +97,7 @@ async function sendTelegram(chatId, text) {
 
         // 6. Wait for simulation
         console.log("Waiting for simulation...");
-        await page.waitForFunction(() => window.lastFinalState && document.getElementById('totalAsset'), { timeout: 30000 });
+        await page.waitForFunction(() => window.lastFinalState && document.getElementById('kpiFinal'), { timeout: 60000 });
 
         // 7. Ensure "Trading Sheet" Mode (Toggle ON)
         const toggle = await page.$('#toggleMode');
